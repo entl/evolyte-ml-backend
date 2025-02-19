@@ -50,10 +50,10 @@ class ModelService:
         scaler = joblib.load(config.scaler_path)
         self.scaler = FeatureScaler(scaler)
 
-    def predict(self, features: PredictionRequest) -> PredictionResponse:
+    def predict(self, request: PredictionRequest) -> PredictionResponse:
         """Handles prediction for a single input."""
         # Convert Pydantic model to dictionary and apply scaling
-        feature_dict = features.features.dict()
+        feature_dict = request.features.dict()
         scaled_features = self.scaler.process(feature_dict)
 
         # Convert to DMatrix for XGBoost
@@ -63,30 +63,38 @@ class ModelService:
         # Make prediction
         prediction = self.model.predict(dmatrix)[0]
 
-        return PredictionResponse(prediction=str(self._ensure_non_negative(prediction)))
+        return PredictionResponse(prediction=str(self._ensure_non_negative(prediction)),
+                                  datetime=request.datetime)
 
-    def batch_predict(self, features: BatchPredictionRequest) -> BatchPredictionResponse:
-        """Handles batch prediction."""
+    def batch_predict(self, request: BatchPredictionRequest):
+        entries = request.entries
+        predictions = []
+
         # Convert Pydantic models to dictionaries and apply scaling
-        feature_dicts = [self.scaler.process(feature.dict()) for feature in features.features]
+        for entry in entries:
+            feature_dict = entry.features.dict()
+            scaled_features = self.scaler.process(feature_dict)
 
-        # Extract feature values in correct order
-        feature_values = np.array([
-            [feature_dict[feature] for feature in config.FEATURE_NAMES] for feature_dict in feature_dicts
-        ])
+            # Convert to DMatrix for XGBoost
+            feature_values = np.array([list(scaled_features.values())])
+            dmatrix = xgboost.DMatrix(feature_values, feature_names=config.FEATURE_NAMES)
 
-        # Convert to DMatrix for XGBoost
-        dmatrix = xgboost.DMatrix(feature_values, feature_names=config.FEATURE_NAMES)
+            # Make prediction
+            prediction = self.model.predict(dmatrix)[0]
 
-        # Make batch predictions
-        predictions = self.model.predict(dmatrix)
-        predictions = [max(0, pred) for pred in predictions]
+            prediction = self._ensure_non_negative(prediction)
+            prediction = self._convert_relative_output_to_kwh(entry.features.kwp, prediction)
 
-        return BatchPredictionResponse(
-            predictions=[PredictionResponse(prediction=str(pred)) for pred in predictions]
-        )
+            predictions.append(PredictionResponse(prediction=str(prediction), datetime=entry.datetime))
+
+        return BatchPredictionResponse(predictions=predictions)
 
     @staticmethod
     def _ensure_non_negative(prediction: float) -> float:
         """Ensures the prediction is non-negative."""
         return max(0, prediction)
+
+    @staticmethod
+    def _convert_relative_output_to_kwh(kwp: float, relative_output: float) -> float:
+        """Converts relative output to kWh."""
+        return kwp * relative_output
