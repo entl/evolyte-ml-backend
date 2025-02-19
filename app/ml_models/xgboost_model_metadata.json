@@ -1,0 +1,12 @@
+{
+    "model_name": "xgboost_model",
+    "model_type": "XGBoost",
+    "version": "v1",
+    "metrics": {
+        "mae": 0.029353510654101224,
+        "mse": 0.0037743050683911278,
+        "rmse": 0.06143537310370246,
+        "r2": 0.8763700314152835
+    },
+    "training_date": "2025-02-19 20:27:04"
+}
