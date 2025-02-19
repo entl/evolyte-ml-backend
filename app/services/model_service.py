@@ -62,6 +62,7 @@ class ModelService:
 
         # Make prediction
         prediction = self.model.predict(dmatrix)[0]
+        prediction = self._convert_relative_output_to_kwh(request.features.kwp, prediction)
 
         return PredictionResponse(prediction=str(self._ensure_non_negative(prediction)),
                                   datetime=request.datetime)
