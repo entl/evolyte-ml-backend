@@ -11,16 +11,18 @@ class FeatureInput(BaseModel):
     precipitation: float
     wind_speed_10m: float
     wind_direction_10m: float
-    direct_normal_irradiance: float
     day_of_year: float
+    solar_zenith: float
     solar_azimuth: float
     poa: float
+    clearsky_index: float
     cloud_cover_3_moving_average: float
-    cell_temp: float
     hour_sin: float
+    hour_cos: float
     day_of_year_sin: float
     month_cos: float
-    relative_physical_model_prediction: float
+    cell_temp: float
+    physical_model_prediction: float
 
 
 # Request model for a single prediction.
