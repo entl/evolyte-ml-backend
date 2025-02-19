@@ -1,10 +1,10 @@
-from typing import Annotated
+from fastapi import APIRouter, status
 
-from fastapi import APIRouter, Depends, status
+from app.schemas.health import HealthResponse
 
 health_router = APIRouter()
 
 
 @health_router.get("/health", status_code=status.HTTP_200_OK)
 def health():
-    return {"status": "ok"}
+    return HealthResponse(status="ok")

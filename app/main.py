@@ -6,6 +6,7 @@ from starlette.middleware import Middleware
 
 from app.routers.health import health_router
 from app.routers.predict import predict_router
+from app.routers.information import information_router
 
 # Configure web domain which can access api
 origins = [
@@ -30,6 +31,7 @@ def init_routers(app_: FastAPI) -> None:
     prefix_router = APIRouter(prefix="/api/v1")
     prefix_router.include_router(health_router)
     prefix_router.include_router(predict_router)
+    prefix_router.include_router(information_router)
 
     app_.include_router(prefix_router)
 
