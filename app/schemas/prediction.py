@@ -34,7 +34,7 @@ class PredictionRequest(BaseModel):
 
 # Response model for a single prediction.
 class PredictionResponse(BaseModel):
-    prediction: str
+    prediction: float
     datetime: datetime
 
 
