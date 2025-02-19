@@ -1,6 +1,5 @@
-from typing import Dict
-
 from pydantic import BaseModel
+
 
 class Metrics(BaseModel):
     mae: float
