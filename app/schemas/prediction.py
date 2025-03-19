@@ -3,7 +3,7 @@ from typing import List
 
 from datetime import datetime
 
-# Define the expected features as a dedicated model.
+
 class FeatureInput(BaseModel):
     kwp: float
     relative_humidity_2m: float
@@ -26,23 +26,19 @@ class FeatureInput(BaseModel):
     physical_model_prediction: float
 
 
-# Request model for a single prediction.
 class PredictionRequest(BaseModel):
     features: FeatureInput
     datetime: datetime
 
 
-# Response model for a single prediction.
 class PredictionResponse(BaseModel):
     prediction: float
     datetime: datetime
 
 
-# Request model for batch predictions.
 class BatchPredictionRequest(BaseModel):
     entries: List[PredictionRequest]
 
 
-# Response model for batch predictions.
 class BatchPredictionResponse(BaseModel):
     predictions: List[PredictionResponse]
